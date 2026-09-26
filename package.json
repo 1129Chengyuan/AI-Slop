@@ -1,0 +1,17 @@
+{
+  "name": "tenet",
+  "version": "1.0.0",
+  "description": "A reversible programming language with a zero-memory time-travel debugger",
+  "type": "module",
+  "bin": {
+    "tenet": "./bin/tenet.js"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "start": "node bin/tenet.js"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

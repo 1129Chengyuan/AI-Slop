@@ -1,0 +1,30 @@
+// examples/xtea.tnt
+//
+// XTEA, the real cipher (Wheeler & Needham, 1997) -- not a toy substitution
+// cipher. 32 Feistel rounds over two u32 words, driven by a 128-bit key
+// split into four u32 words. Every round only ever does `+=` on v0/v1 using
+// an expression built from the *other* word (never itself), so the whole
+// cipher is reversible by construction: `call xtea_encrypt` encrypts,
+// `uncall xtea_encrypt` decrypts -- same key schedule, same code, run
+// backward. test/xtea.test.js checks this against an independent XTEA
+// implementation in plain JS.
+//
+// Set the plaintext block into v0/v1 and the key into key[0..3] before
+// calling (all u32, so values wrap mod 2^32 automatically).
+
+u32 v0;
+u32 v1;
+u32 sum;
+u32 key[4];
+int round;
+
+proc xtea_encrypt() {
+  from round == 0 do
+    v0 += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + key[sum & 3]);
+    sum += 0x9E3779B9;
+    v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + key[(sum >> 11) & 3]);
+    round += 1;
+  loop
+    skip;   // exit test runs after every doBody, so the loop body stays empty
+  until round == 32;
+}

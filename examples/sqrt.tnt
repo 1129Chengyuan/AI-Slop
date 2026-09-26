@@ -1,0 +1,25 @@
+// examples/sqrt.tnt
+//
+// Reversible integer square root: count s up from 0 while (s+1)^2 <= x,
+// stopping at floor(sqrt(x)). The loop's exit test is a genuine arithmetic
+// condition (not just a counter comparison, unlike fib.tnt/xtea.tnt's round
+// counts), which is exactly the case that trips up a naive reversible-loop
+// implementation -- get the entry/exit assertion swap wrong and this either
+// refuses to run or refuses to uncall. It does both.
+//
+// x is pure input (never written), so `uncall isqrt` doesn't "decode"
+// anything new -- it re-derives, from x and the final s, that s must count
+// back down to 0 exactly one step at a time, checking the same arithmetic
+// invariant in reverse the whole way. Requires x >= 1 (the do/loop/until
+// form always runs its body at least once, so x == 0 is out of scope here).
+
+int x;
+int s;
+
+proc isqrt() {
+  from s == 0 do
+    s += 1;
+  loop
+    skip;   // exit test runs after every doBody; see fib.tnt's comment
+  until (s + 1) * (s + 1) > x;
+}

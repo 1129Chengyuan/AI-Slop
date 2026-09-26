@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tenet playground</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Tenet <span class="tagline">— a reversible language &amp; zero-memory time-travel debugger</span></h1>
+  </header>
+
+  <main>
+    <section class="panel source-panel">
+      <div class="panel-head">
+        <label>example
+          <select id="example-select"></select>
+        </label>
+        <label>proc
+          <select id="proc-select"></select>
+        </label>
+        <label>start as
+          <select id="mode-select">
+            <option value="call">call (run forward)</option>
+            <option value="uncall">uncall (run backward)</option>
+          </select>
+        </label>
+      </div>
+      <textarea id="source" spellcheck="false"></textarea>
+      <div class="panel-head">
+        <label class="grow">initial values (one per line, <code>name=1</code> or <code>name=1,2,3</code>)
+          <textarea id="init-values" rows="3" spellcheck="false"></textarea>
+        </label>
+      </div>
+      <div class="controls">
+        <button id="load">Load</button>
+        <button id="step-back" disabled>◀ step</button>
+        <button id="step-fwd" disabled>step ▶</button>
+        <button id="run-fwd" disabled>run ▶▶</button>
+        <button id="run-bwd" disabled>◀◀ run</button>
+        <button id="reset" disabled>reset</button>
+      </div>
+      <div id="status" class="status"></div>
+    </section>
+
+    <section class="panel state-panel">
+      <h2>store</h2>
+      <table id="state-table"><tbody></tbody></table>
+      <div class="memory-badge">
+        <span id="memory-count">0</span> stack frame(s) held —
+        constant regardless of how many statements have run
+      </div>
+    </section>
+
+    <section class="panel inverted-panel">
+      <h2>inverse of the selected proc <span class="hint">(computed once, statically — this is what <code>uncall</code> actually runs)</span></h2>
+      <pre id="inverted-source"></pre>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

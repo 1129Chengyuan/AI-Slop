@@ -1,0 +1,28 @@
+// examples/fib.tnt
+//
+// The "hello world" of reversible computing: build the pair
+// (F(n), F(n+1)) by counting a loop variable i up from 0 to n, using only
+// += and <=>. Nothing here is destructive, so `uncall fib` runs the exact
+// same loop backward and drives (x1, x2, i) back to (0, 1, 0) -- an inverse
+// Fibonacci, generated without writing a single line of "undo" code.
+//
+// Requires n >= 1 (set it before calling: `tenet call examples/fib.tnt fib --set n=10`).
+
+int n;   // which pair to compute; read-only from fib's point of view
+int i;   // loop counter, counts 0 -> n
+int x1;  // ends at F(i) == F(n)
+int x2;  // ends at F(i+1) == F(n+1)
+
+proc fib() {
+  x2 += 1;              // seed (x1, x2) = (F(0), F(1)) = (0, 1)
+  from i == 0 do
+    x1 += x2;
+    x1 <=> x2;
+    i += 1;
+  loop
+    skip;                // testExit is checked right after doBody, every
+                          // time -- loopBody only runs between checks, so
+                          // duplicating the step here would silently check
+                          // the exit condition on only every *other* step.
+  until i == n;
+}

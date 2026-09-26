@@ -1,0 +1,52 @@
+// examples/sort.tnt
+//
+// Why isn't there a plain "reversible bubble sort" example? Because there's
+// no such thing, and that's the interesting part (this is basically a
+// worked illustration of Landauer's principle: sorting is inherently
+// information-destroying unless you keep what you threw away).
+//
+// A comparison sort normally does `if a[i] > a[j] then swap fi <retest>`.
+// Once the array is sorted, "did a swap happen here?" is gone -- the
+// post-state of a comparator that swapped an out-of-order pair looks
+// *identical* to one that found an already-ordered pair and did nothing,
+// because both leave the smaller value first. There is no exit assertion
+// you can write using only a[i] and a[j] that tells those two histories
+// apart, so a naive Tenet transliteration of bubble sort simply doesn't
+// type/run -- you cannot pick a testExit that's provably correct for both
+// branches, and if you fake one, `uncall` will scramble the array on some
+// inputs. Try it: this file's whole point is that you *can't* skip the
+// `decisions` stack below and still have something reversible.
+//
+// The fix is to keep the one bit of information each comparator destroys:
+// push a 0/1 "did I swap" flag for every comparator, in order. That stack
+// is, bit for bit, the permutation the sort applied. `decisions` ends up
+// holding exactly as many bits as there are comparators (10, here) --
+// Landauer's bound, made concrete and countable.
+//
+// This is an odd-even transposition network on 5 elements: n=5 rounds of
+// adjacent compare-swaps (alternating "even" pairs (0,1)(2,3) and "odd"
+// pairs (1,2)(3,4)) provably sort any 5 elements, so every comparator
+// position is fixed in advance -- no data-dependent control flow beyond
+// the swap decision itself.
+
+int a[5];
+int d;
+stack decisions;
+
+proc sort5() {
+  // round 1 (even)
+  if a[0] > a[1] then a[0] <=> a[1]; d += 1; else skip; fi d == 1; push d decisions;
+  if a[2] > a[3] then a[2] <=> a[3]; d += 1; else skip; fi d == 1; push d decisions;
+  // round 2 (odd)
+  if a[1] > a[2] then a[1] <=> a[2]; d += 1; else skip; fi d == 1; push d decisions;
+  if a[3] > a[4] then a[3] <=> a[4]; d += 1; else skip; fi d == 1; push d decisions;
+  // round 3 (even)
+  if a[0] > a[1] then a[0] <=> a[1]; d += 1; else skip; fi d == 1; push d decisions;
+  if a[2] > a[3] then a[2] <=> a[3]; d += 1; else skip; fi d == 1; push d decisions;
+  // round 4 (odd)
+  if a[1] > a[2] then a[1] <=> a[2]; d += 1; else skip; fi d == 1; push d decisions;
+  if a[3] > a[4] then a[3] <=> a[4]; d += 1; else skip; fi d == 1; push d decisions;
+  // round 5 (even)
+  if a[0] > a[1] then a[0] <=> a[1]; d += 1; else skip; fi d == 1; push d decisions;
+  if a[2] > a[3] then a[2] <=> a[3]; d += 1; else skip; fi d == 1; push d decisions;
+}

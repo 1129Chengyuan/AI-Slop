@@ -1,0 +1,39 @@
+// examples/rle.tnt
+//
+// Run-length encoding over a 16-bit array, done *destructively*: each bit
+// is erased from `bits[]` with `bits[pos] ^= cur` the moment it's folded
+// into the current run, exactly the way `push` zeroes the variable it
+// empties. That's what makes `uncall rle_encode` a genuine decoder rather
+// than a no-op -- it doesn't just rewind bookkeeping variables, it
+// reconstructs `bits[]` from nothing but the `runs` stack, one XOR at a
+// time.
+//
+// Set bits[0..15] to 0/1 before calling (`--set bits=0,0,0,1,1,1,0,...`).
+
+int bits[16];
+int pos;
+int count;
+int cur;
+stack runs;
+
+proc rle_encode() {
+  cur ^= bits[0];
+  bits[0] ^= cur;
+  count += 1;
+  pos += 1;
+  from pos == 1 do
+    if bits[pos] == cur then
+      bits[pos] ^= cur;
+      count += 1;
+    else
+      push count runs;
+      cur ^= 1;
+      bits[pos] ^= cur;
+      count += 1;
+    fi count != 1;
+    pos += 1;
+  loop
+    skip;   // exit test runs after every doBody; see fib.tnt's comment
+  until pos == 16;
+  push count runs;
+}
